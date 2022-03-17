@@ -23,7 +23,8 @@ class ViewController: UIViewController {
         //networkManager(ViewController: self)
         networkManager = flickrNetworkClass(viewController: self)
         
-
+// call getImage function
+        
         networkManager.getImage()
         // Do any additional setup after loading the view.
     }
