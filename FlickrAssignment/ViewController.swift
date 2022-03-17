@@ -77,7 +77,7 @@ protocol Result: AnyObject{
 }
 
 extension ViewController: Result{
-    
+    // reload data
     func getFinalResult() {
         DispatchQueue.main.async {
             self.collectionView.reloadData()
