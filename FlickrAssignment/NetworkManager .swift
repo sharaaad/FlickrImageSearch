@@ -7,54 +7,45 @@
 
 import Foundation
 
-
-protocol flickrNetwork {
     
-    func getImage()
+protocol flickrNetwork {
+    var delegateViewModel: FlickrModel? {get set}
+    func getImage(search: String)
 }
 
-class flickrNetworkClass: flickrNetwork {    
+class NetworkManager: flickrNetwork {
     
-    weak var viewController : Result?
-    init(viewController: Result) {
-        self.viewController = viewController
-    }
-    
+    weak var delegateViewModel: FlickrModel?
     var data: [Photo] = []
-    func getImage() {
+    
+    func getImage(search: String) {
         
-        
-        let urlstr = "https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=0e08e76eff544231b992197c7c7c22a9&text=cat&format=json&nojsoncallback=1"
-        
-        let url = URL(string: urlstr)
-        
-        guard url != nil else  {
+        let flickrURL = "https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=0e08e76eff544231b992197c7c7c22a9&text=\(search)&format=json&nojsoncallback=1"
+        let imageURL = URL(string: flickrURL)
+        guard imageURL != nil else  {
             return
         }
-        let session = URLSession.shared
-        let datatask = session.dataTask(with: url!) {
+        let sessionURL = URLSession.shared
+        let dataInfo = sessionURL.dataTask(with: imageURL!) {
             data, responce, error in
-            
-            let decoded = JSONDecoder()
+            guard let data = data else {
+                return
+            }
+
+            let jsonDecode = JSONDecoder()
             do{
-                //let decodedResponce = try
-                //JSONDecoder().decode(UserResponce.self, from: data!)
-                let decodedResponce = try decoded.decode(Pictures.self, from: data!)
-                self.data = decodedResponce.photos.photo
-               print("data")
-                
-                self.viewController?.getFinalResult()
-            
-            }catch{
+                let responceDecode = try jsonDecode.decode(Pictures.self, from: data)
+                self.data = responceDecode.photos.photo
+                self.delegateViewModel?.imageResponce(responce: responceDecode)
+            }
+            catch{
                 print(error.localizedDescription)
             }
             
         }
-        datatask.resume()
+        dataInfo.resume()
     }
 
     }
-    
-    
     
 
